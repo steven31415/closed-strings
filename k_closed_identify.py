@@ -118,9 +118,9 @@ def get_peaks(array):
     n = len(array)
     peaks = [0] * n
 
-    max_val = array[0]
+    max_val = -1
     for i in range(0, n):
-        if array[i] >= max_val:
+        if array[i] > max_val:
             peaks[i] = True
             max_val = array[i]
         else:
@@ -130,52 +130,74 @@ def get_peaks(array):
 
 
 
-# get string input and k parameter
-sequence = 'gtgagaggtg'
-k = 0
-n = len(sequence)
+# return length of longest closed border (if not closed returns -1)
+def get_longest_closed_border(sequence, k):
 
-# calculate l values
-l = generate_l_values(sequence, k)
-print("l", l)
+	n = len(sequence)
 
-# calcuate lp values by reversing string
-lp = generate_l_values(sequence[::-1], k)[::-1]
-print("lp", lp)
+	if n == 1:
+		return 0
+	else:
+		# calculate l values
+		l = generate_l_values(sequence, k)
+		print(l)
 
-# get peak locations in l
-l_peaks = get_peaks(l)
-print("l_peaks", l_peaks)
+		# calcuate lp values by reversing string
+		lp = generate_l_values(sequence[::-1], k)[::-1]
+		print(lp)
 
-# get peak locations in lp
-lp_peaks = get_peaks(lp[::-1])[::-1]
-print("lp_peaks", lp_peaks)
+		# get peak locations in l
+		l_peaks = get_peaks(l)
+		print(l_peaks)
+
+		# get peak locations in lp
+		lp_peaks = get_peaks(lp[::-1])
+		print(lp_peaks)
 
 
+		# check conditions
+		closed_border = -1
 
-# check conditions
-closed_border = -1
+		for j in range(2, n):
+		    # 1st condition
+		    if j + l[j] == n:
+		        # 2nd condition
+		        if l_peaks[j]:
+		            # 3rd condition
+		            if lp_peaks[j]:
+		                closed_border = n-j
+		                break
+		            else:
+		                continue
+		        else:
+		            continue
+		    else:
+		        continue
 
-for j in range(2, n):
-    # 1st condition
-    if j + l[j] == n:
-        # 2nd condition
-        if l_peaks[j]:
-            # 3rd condition
-            if lp_peaks[j]:
-                closed_border = n-j
-                break
-            else:
-                continue
-        else:
-            continue
-    else:
-        continue
+		return closed_border
 
-if (closed_border >= 0):
-    print("CLOSED BORDER LENGTH = " + str(closed_border))
-else:
-    print("NOT CLOSED")
+# perform tests
 
+for line in open('k_closed_identify_tests.txt'):
+	
+	values = str.split(line)
+
+	k = int(values[0])
+	sequence = values[1]
+	
+	print(k, sequence)
+
+	closed_border = get_longest_closed_border(sequence, k)
+
+	if (closed_border >= 0):
+	    print("CLOSED BORDER LENGTH = " + str(closed_border))
+	else:
+	    print("NOT CLOSED")
+
+	print("")
+
+
+#print_closed_check("aba", 1)
+	
 
 
