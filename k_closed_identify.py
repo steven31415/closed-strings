@@ -34,7 +34,7 @@ class RMQ:
             
     def query_help(self, a, b, k, l, r):
         if r <= a or b <= l:
-            return sys.maxint
+            return sys.maxsize
         elif a <= l and r <= b:
             return self.dat[k]
         else:
