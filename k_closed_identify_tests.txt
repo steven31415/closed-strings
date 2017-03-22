@@ -35,4 +35,3 @@
 1 acgtagaatg 3
 1 gtgagtggta -1
 1 acgtgtaatg -1
-0 agtcgahdjfrejhwagtcgahdjfrejhw 15

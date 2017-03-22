@@ -140,19 +140,19 @@ def get_longest_closed_border(sequence, k):
 	else:
 		# calculate LPM values
 		lpm = get_LPM(sequence, k)
-		print(lpm)
+		print("LPM:", lpm)
 
 		# calcuate lp values by reversing string
 		lsm = get_LPM(sequence[::-1], k)[::-1]
-		print(lsm)
+		print("LSM:", lsm)
 
 		# get peak locations in l
 		lpm_peaks = get_peaks(lpm)
-		print(lpm_peaks)
+		print("LPM PEAKS:", lpm_peaks)
 
 		# get peak locations in lp
-		lsm_peaks = get_peaks(lsm[::-1])
-		print(lsm_peaks)
+		lsm_peaks = get_peaks(lsm[::-1])[::-1]
+		print("LSM PEAKS:", lsm_peaks)
 
 		# check conditions
 		closed_border = -1
@@ -163,7 +163,7 @@ def get_longest_closed_border(sequence, k):
 		        # 2nd condition
 		        if lpm_peaks[j]:
 		            # 3rd condition
-		            if lsm_peaks[j]:
+		            if lsm_peaks[n-1-j]:
 		                closed_border = n-j
 		                break
 		            else:
