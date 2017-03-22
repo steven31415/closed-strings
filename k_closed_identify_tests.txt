@@ -1,37 +1,38 @@
-0 a
-0 aa
-0 ab
-0 aaaa
-0 aba
-0 abba
-0 abab
-0 aga
-0 acgt
-0 agggta
-0 acacgtacgatagc
-1 a
-1 aa
-1 ab
-1 aaaa
-1 aba
-1 abba
-1 abab
-1 aga
-1 acgt
-1 agggta
-1 acacgtacgatagc
-2 a
-2 aa
-2 ab
-2 aaaa
-2 aba
-2 abba
-2 abab
-2 aga
-2 acgt
-2 agggta
-2 acacgtacgatagc
-2 abbabaababaabab
-1 acgtagaatg
-1 gtgagtggta
-1 acgtgtaatg
+0 a 0
+0 aa 1
+0 ab -1
+0 aaaa 3
+0 aba 1
+0 abba 1
+0 abab 2
+0 aga 1
+0 acgt -1
+0 agggta 1
+0 acacgtacgatagc -1
+1 a 0
+1 aa 1
+1 ab 1
+1 aaaa 3
+1 aba -1
+1 abba -1
+1 abab 2
+1 aga -1
+1 acgt -1
+1 agggta -1
+1 acacgtacgatagc -1
+2 a 0 
+2 aa 1
+2 ab 1
+2 aaaa 3
+2 aba 2
+2 abba 3
+2 abab -1
+2 aga 2
+2 acgt -1
+2 agggta -1
+2 acacgtacgatagc -1
+2 abbabaababaabab 10
+1 acgtagaatg 3
+1 gtgagtggta -1
+1 acgtgtaatg -1
+0 agtcgahdjfrejhwagtcgahdjfrejhw 15

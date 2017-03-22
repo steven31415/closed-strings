@@ -44,7 +44,7 @@ class RMQ:
 
 
 # l value generating function
-def generate_l_values(sequence, k):
+def get_LPM(sequence, k):
 
     # store length of sequence
     n = len(sequence)
@@ -92,7 +92,7 @@ def generate_l_values(sequence, k):
 
     ########################
 
-    l = [0] * n
+    lpm = [0] * n
 
     for i in range(1, n):
 
@@ -100,16 +100,16 @@ def generate_l_values(sequence, k):
         for j in range(0, k + 1):
 
             # perform an LCP and update next location to check
-            l[i] = l[i] + LCP(0 + l[i], i + l[i]) + 1
+            lpm[i] = lpm[i] + LCP(0 + lpm[i], i + lpm[i]) + 1
 
             # stop if end of string is reached
-            if l[i] > n - i:
+            if lpm[i] > n - i:
                 break
 
         # remove 1 to ensure final mismatch is not included
-        l[i] = l[i] - 1
+        lpm[i] = lpm[i] - 1
 
-    return l
+    return lpm
 
 
 
@@ -138,33 +138,32 @@ def get_longest_closed_border(sequence, k):
 	if n == 1:
 		return 0
 	else:
-		# calculate l values
-		l = generate_l_values(sequence, k)
-		print(l)
+		# calculate LPM values
+		lpm = get_LPM(sequence, k)
+		print(lpm)
 
 		# calcuate lp values by reversing string
-		lp = generate_l_values(sequence[::-1], k)[::-1]
-		print(lp)
+		lsm = get_LPM(sequence[::-1], k)[::-1]
+		print(lsm)
 
 		# get peak locations in l
-		l_peaks = get_peaks(l)
-		print(l_peaks)
+		lpm_peaks = get_peaks(lpm)
+		print(lpm_peaks)
 
 		# get peak locations in lp
-		lp_peaks = get_peaks(lp[::-1])
-		print(lp_peaks)
-
+		lsm_peaks = get_peaks(lsm[::-1])
+		print(lsm_peaks)
 
 		# check conditions
 		closed_border = -1
 
-		for j in range(2, n):
+		for j in range(1, n):
 		    # 1st condition
-		    if j + l[j] == n:
+		    if j + lpm[j] == n:
 		        # 2nd condition
-		        if l_peaks[j]:
+		        if lpm_peaks[j]:
 		            # 3rd condition
-		            if lp_peaks[j]:
+		            if lsm_peaks[j]:
 		                closed_border = n-j
 		                break
 		            else:
@@ -177,6 +176,8 @@ def get_longest_closed_border(sequence, k):
 		return closed_border
 
 # perform tests
+line_count = 0
+correct_result_count = 0
 
 for line in open('k_closed_identify_tests.txt'):
 	
@@ -184,20 +185,27 @@ for line in open('k_closed_identify_tests.txt'):
 
 	k = int(values[0])
 	sequence = values[1]
+	correct_result = int(values[2])
 	
 	print(k, sequence)
 
 	closed_border = get_longest_closed_border(sequence, k)
 
+	# print result of each test
 	if (closed_border >= 0):
 	    print("CLOSED BORDER LENGTH = " + str(closed_border))
 	else:
 	    print("NOT CLOSED")
 
+	# increment test result counts
+	if closed_border == correct_result:
+		correct_result_count += 1
+		print("Correct")
+	else:
+		print("Incorrect")
 	print("")
 
+	line_count += 1
 
-#print_closed_check("aba", 1)
+print(str(correct_result_count) + " out of " + str(line_count) + " tests passed")
 	
-
-
