@@ -1,0 +1,111 @@
+(0, 'a')
+CLOSED BORDER LENGTH = 0
+
+(0, 'aa')
+NOT CLOSED
+
+(0, 'ab')
+NOT CLOSED
+
+(0, 'aaaa')
+NOT CLOSED
+
+(0, 'aba')
+CLOSED BORDER LENGTH = 1
+
+(0, 'abba')
+CLOSED BORDER LENGTH = 1
+
+(0, 'abab')
+CLOSED BORDER LENGTH = 2
+
+(0, 'aga')
+CLOSED BORDER LENGTH = 1
+
+(0, 'acgt')
+NOT CLOSED
+
+(0, 'agggta')
+CLOSED BORDER LENGTH = 1
+
+(0, 'acacgtacgatagc')
+NOT CLOSED
+
+(1, 'a')
+CLOSED BORDER LENGTH = 0
+
+(1, 'aa')
+NOT CLOSED
+
+(1, 'ab')
+NOT CLOSED
+
+(1, 'aaaa')
+NOT CLOSED
+
+(1, 'aba')
+NOT CLOSED
+
+(1, 'abba')
+NOT CLOSED
+
+(1, 'abab')
+CLOSED BORDER LENGTH = 2
+
+(1, 'aga')
+NOT CLOSED
+
+(1, 'acgt')
+NOT CLOSED
+
+(1, 'agggta')
+NOT CLOSED
+
+(1, 'acacgtacgatagc')
+NOT CLOSED
+
+(2, 'a')
+CLOSED BORDER LENGTH = 0
+
+(2, 'aa')
+NOT CLOSED
+
+(2, 'ab')
+NOT CLOSED
+
+(2, 'aaaa')
+NOT CLOSED
+
+(2, 'aba')
+NOT CLOSED
+
+(2, 'abba')
+NOT CLOSED
+
+(2, 'abab')
+NOT CLOSED
+
+(2, 'aga')
+NOT CLOSED
+
+(2, 'acgt')
+NOT CLOSED
+
+(2, 'agggta')
+NOT CLOSED
+
+(2, 'acacgtacgatagc')
+NOT CLOSED
+
+(2, 'abbabaababaabab')
+CLOSED BORDER LENGTH = 10
+
+(1, 'acgtagaatg')
+CLOSED BORDER LENGTH = 3
+
+(1, 'gtgagtggta')
+NOT CLOSED
+
+(1, 'acgtgtaatg')
+NOT CLOSED
+
