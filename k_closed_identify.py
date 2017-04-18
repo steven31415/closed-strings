@@ -151,7 +151,7 @@ def get_longest_closed_border(sequence, k):
 		print("LPM PEAKS:", lpm_peaks)
 
 		# get peak locations in lp
-		lsm_peaks = get_peaks(lsm[::-1])[::-1]
+		lsm_peaks = get_peaks(lsm)
 		print("LSM PEAKS:", lsm_peaks)
 
 		# check conditions
