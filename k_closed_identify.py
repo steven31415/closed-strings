@@ -93,6 +93,7 @@ def get_LPM(sequence, k):
     ########################
 
     lpm = [0] * n
+    lpm[0] = -1
 
     for i in range(1, n):
 
@@ -110,6 +111,69 @@ def get_LPM(sequence, k):
         lpm[i] = lpm[i] - 1
 
     return lpm
+
+
+# l value generating function from previous l
+def get_next_LPM(prev_lpm, sequence):
+
+    # store length of sequence
+    n = len(sequence)
+
+    # append unique terminal character to sequence
+    sequence = sequence + "$"
+
+    ########################
+
+    # create suffix array and LCP array
+    sa = pysais.sais(sequence)
+    lcp, lcp_lm, lcp_mr = pysais.lcp(sequence, sa)
+
+    # create inverse suffix array
+    isa = [0] * (n + 1)
+    for i in range(0, n + 1):
+        isa[sa[i]] = i
+
+    # preprocess LCP array for RMQ
+    rmq = RMQ(n + 1)
+    for i in range(n + 1):
+        rmq.update(i, lcp[i])
+
+    # optional printing of suffix array
+    print_suffix_array = False
+
+    if (print_suffix_array):
+        for off in sa :
+            print('%3d : %s' % (off, sequence[off:]))
+
+    ########################
+
+    # define generic LCP function
+    def LCP(i, j):
+        if i == j:
+            return n - i
+
+        a = isa[i]
+        b = isa[j]
+
+        if a > b:
+            a, b = b, a
+
+        return rmq.query(a, b)
+
+    ########################
+
+    for i in range(1, n):
+        # stop if end of string is reached
+        if prev_lpm[i] == n - i:
+            continue
+
+        # perform up to 1 additional LCP query for each suffix
+        prev_lpm[i] = prev_lpm[i] + LCP(0 + prev_lpm[i] + 1, i + prev_lpm[i] + 1)
+
+        # to ensure final mismatch is included
+        prev_lpm[i] = prev_lpm[i] + 1
+
+    return prev_lpm
 
 
 
@@ -131,13 +195,15 @@ def get_peaks(array):
 
 
 # return length of longest closed border (if not closed returns -1)
-def get_longest_closed_border(sequence, k):
+def get_longest_closed_border(sequence, k, pseudo=True):
 
 	n = len(sequence)
 
 	if n == 1:
 		return 0
-	else:
+
+	# calculate k-psuedo-closed border
+	if (pseudo):
 		# calculate LPM values
 		lpm = get_LPM(sequence, k)
 		print("LPM:", lpm)
@@ -174,6 +240,38 @@ def get_longest_closed_border(sequence, k):
 		        continue
 
 		return closed_border
+	# calculate k-closed border
+	else:
+		reallpm = get_LPM(sequence, k)
+		reallsm = get_LPM(sequence[::-1], k)[::-1]
+
+		closed_border = -1
+		lpm = [-1] * n
+		lsm = [-1] * n
+
+		for i in range(0, k + 1):
+			lpm = get_next_LPM(lpm, sequence)
+			lsm = get_next_LPM(lsm[::-1], sequence[::-1])[::-1]
+
+			lpm_peaks = get_peaks(lpm)
+			lsm_peaks = get_peaks(lsm)
+
+			for j in range(1, n):
+				# 1st condition
+				if j + lpm[j] == n:
+					# 2nd condition
+					if lpm_peaks[j]:
+						# 3rd condition
+						if lsm_peaks[n-1-j]:
+							closed_border = n-j
+							print("k:", i)
+							print("REAL LPM:", reallpm)
+							print("PROG LPM:", lpm)
+							print("REAL LSM:", reallsm)
+							print("PROG LSM:", lsm)
+							return closed_border
+
+		return -1
 
 # perform tests
 line_count = 0
@@ -183,13 +281,14 @@ for line in open('k_closed_identify_tests.txt'):
 	
 	values = str.split(line)
 
-	k = int(values[0])
-	sequence = values[1]
-	correct_result = int(values[2])
+	pseudo = (str(values[0]) == 'P')
+	k = int(values[1])
+	sequence = values[2]
+	correct_result = int(values[3])
 	
 	print(k, sequence)
 
-	closed_border = get_longest_closed_border(sequence, k)
+	closed_border = get_longest_closed_border(sequence, k, pseudo)
 
 	# print result of each test
 	if (closed_border >= 0):
