@@ -2,6 +2,10 @@ import sys
 import itertools
 import pysais
 import numpy as np
+import argparse
+from LCA import RangeMin
+from LCA import LogarithmicRangeMin
+from timeit import default_timer as timer
 
 # To install PySAIS module needed for Suffix Arrays and LCP
 # follow README.md instructions on https://github.com/AlexeyG/PySAIS
@@ -64,9 +68,7 @@ def get_LPM(sequence, k):
         isa[sa[i]] = i
 
     # preprocess LCP array for RMQ
-    rmq = RMQ(n + 1)
-    for i in range(n + 1):
-        rmq.update(i, lcp[i])
+    rmq = LogarithmicRangeMin(lcp)
 
     # optional printing of suffix array
     print_suffix_array = False
@@ -88,7 +90,7 @@ def get_LPM(sequence, k):
         if a > b:
             a, b = b, a
 
-        return rmq.query(a, b)
+        return rmq[a:b]
 
     ########################
 
@@ -134,9 +136,7 @@ def get_next_LPM(prev_lpm, sequence):
         isa[sa[i]] = i
 
     # preprocess LCP array for RMQ
-    rmq = RMQ(n + 1)
-    for i in range(n + 1):
-        rmq.update(i, lcp[i])
+    rmq = LogarithmicRangeMin(lcp)
 
     # optional printing of suffix array
     print_suffix_array = False
@@ -158,7 +158,7 @@ def get_next_LPM(prev_lpm, sequence):
         if a > b:
             a, b = b, a
 
-        return rmq.query(a, b)
+        return rmq[a:b]
 
     ########################
 
@@ -206,19 +206,19 @@ def get_longest_closed_border(sequence, k, pseudo=True):
 	if (pseudo):
 		# calculate LPM values
 		lpm = get_LPM(sequence, k)
-		print("LPM:", lpm)
+		#print("LPM:", lpm)
 
 		# calcuate lp values by reversing string
 		lsm = get_LPM(sequence[::-1], k)[::-1]
-		print("LSM:", lsm)
+		#print("LSM:", lsm)
 
 		# get peak locations in l
 		lpm_peaks = get_peaks(lpm)
-		print("LPM PEAKS:", lpm_peaks)
+		#print("LPM PEAKS:", lpm_peaks)
 
 		# get peak locations in lp
 		lsm_peaks = get_peaks(lsm)
-		print("LSM PEAKS:", lsm_peaks)
+		#print("LSM PEAKS:", lsm_peaks)
 
 		# check conditions
 		closed_border = -1
@@ -264,47 +264,58 @@ def get_longest_closed_border(sequence, k, pseudo=True):
 						# 3rd condition
 						if lsm_peaks[n-1-j]:
 							closed_border = n-j
-							print("k:", i)
-							print("REAL LPM:", reallpm)
-							print("PROG LPM:", lpm)
-							print("REAL LSM:", reallsm)
-							print("PROG LSM:", lsm)
+							#print("k:", i)
+							#print("REAL LPM:", reallpm)
+							#print("PROG LPM:", lpm)
+							#print("REAL LSM:", reallsm)
+							#print("PROG LSM:", lsm)
 							return closed_border
 
 		return -1
 
-# perform tests
-line_count = 0
-correct_result_count = 0
+# main execution
+def main():
+	parser = argparse.ArgumentParser(description='Identify if given text is k-closed')
+	parser.add_argument('-f', metavar="", type=str, required=True, nargs=1,
+	                    help='a text filename')
+	parser.add_argument('-k', metavar="", type=int, required=True, nargs=1,
+	                    help='a k-error value')
+	parser.add_argument('-p', required=False, action='store_true',
+	                    help='pseudo-closed flag')
+	parser.add_argument('-t', type=int, required=False, nargs=1,
+	                    help='Number of repetitions to calculate timing')
 
-for line in open('k_closed_identify_tests.txt'):
-	
-	values = str.split(line)
+	args = parser.parse_args()
+	filename = vars(args)['f'][0]
+	k = vars(args)['k'][0]
+	use_pseudo = vars(args)['p']
 
-	pseudo = (str(values[0]) == 'P')
-	k = int(values[1])
-	sequence = values[2]
-	correct_result = int(values[3])
-	
-	print(k, sequence)
-
-	closed_border = get_longest_closed_border(sequence, k, pseudo)
-
-	# print result of each test
-	if (closed_border >= 0):
-	    print("CLOSED BORDER LENGTH = " + str(closed_border))
+	if vars(args)['t'] == None:
+		timing_reps = None
 	else:
-	    print("NOT CLOSED")
+		timing_reps = vars(args)['t'][0]
 
-	# increment test result counts
-	if closed_border == correct_result:
-		correct_result_count += 1
-		print("Correct")
-	else:
-		print("Incorrect")
-	print("")
+	with open(filename, 'r') as file:
+	    seq = file.readlines()
 
-	line_count += 1
+	seq = "".join(seq).replace('\n','')
 
-print(str(correct_result_count) + " out of " + str(line_count) + " tests passed")
-	
+	start = 0
+	end = 0
+
+	if (timing_reps != None):
+		start = timer()
+		for i in range(0, timing_reps):
+			get_longest_closed_border(seq, k, use_pseudo)
+		end = timer()
+
+	border = get_longest_closed_border(seq, k, use_pseudo)
+
+	print("Border: ", border)
+
+	if (timing_reps != None):
+		print("Time(s): ", (end - start) / timing_reps)
+
+# call main
+if __name__ == "__main__":
+	main()
