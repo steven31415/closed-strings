@@ -1,7 +1,6 @@
 import sys
 import itertools
 import pysais
-import numpy as np
 import argparse
 from LCA import RangeMin
 from LCA import LogarithmicRangeMin
@@ -10,89 +9,15 @@ from timeit import default_timer as timer
 # To install PySAIS module needed for Suffix Arrays and LCP
 # follow README.md instructions on https://github.com/AlexeyG/PySAIS
 
-# class RMQ as taken from
-# https://gist.github.com/m00nlight/1f226777a49cfc40ed8f
-#
-# This is most likely not an efficient implementation of RMQ
-# Use as a placeholder
-#
 # When performing queries on a 0-indexed string
 # the range considered is [a, b)
 
-class RMQ:
-    def __init__(self, n):
-        self.sz = 1
-        self.inf = (1 << 31) - 1
-        while self.sz <= n: self.sz = self.sz << 1
-        self.dat = [self.inf] * (2 * self.sz - 1)
-    
-    def update(self, idx, x):
-        idx += self.sz - 1
-        self.dat[idx] = x
-        while idx > 0:
-            idx = (idx - 1) >> 1
-            self.dat[idx] = min(self.dat[idx * 2 + 1], self.dat[idx * 2 + 2])
-            
-    def query(self, a, b):
-        return self.query_help(a, b, 0, 0, self.sz)
-            
-    def query_help(self, a, b, k, l, r):
-        if r <= a or b <= l:
-            return sys.maxsize
-        elif a <= l and r <= b:
-            return self.dat[k]
-        else:
-            return min(self.query_help(a, b, 2 * k + 1, l, (l + r)>>1),
-                        self.query_help(a, b, 2 * k + 2, (l + r) >> 1, r))
-
-
 
 # l value generating function
-def get_LPM(sequence, k):
+def get_LPM(sequence, k, LCP):
 
-    # store length of sequence
-    n = len(sequence)
-
-    # append unique terminal character to sequence
-    sequence = sequence + "$"
-
-    ########################
-
-    # create suffix array and LCP array
-    sa = pysais.sais(sequence)
-    lcp, lcp_lm, lcp_mr = pysais.lcp(sequence, sa)
-
-    # create inverse suffix array
-    isa = [0] * (n + 1)
-    for i in range(0, n + 1):
-        isa[sa[i]] = i
-
-    # preprocess LCP array for RMQ
-    rmq = LogarithmicRangeMin(lcp)
-
-    # optional printing of suffix array
-    print_suffix_array = False
-
-    if (print_suffix_array):
-        for off in sa :
-            print('%3d : %s' % (off, sequence[off:]))
-
-    ########################
-
-    # define generic LCP function
-    def LCP(i, j):
-        if i == j:
-            return n - i
-
-        a = isa[i]
-        b = isa[j]
-
-        if a > b:
-            a, b = b, a
-
-        return rmq[a:b]
-
-    ########################
+    # store length of sequence (ignoring $ character)
+    n = len(sequence) - 1
 
     lpm = [0] * n
     lpm[0] = -1
@@ -116,51 +41,10 @@ def get_LPM(sequence, k):
 
 
 # l value generating function from previous l
-def get_next_LPM(prev_lpm, sequence):
+def get_next_LPM(prev_lpm, sequence, LCP):
 
-    # store length of sequence
-    n = len(sequence)
-
-    # append unique terminal character to sequence
-    sequence = sequence + "$"
-
-    ########################
-
-    # create suffix array and LCP array
-    sa = pysais.sais(sequence)
-    lcp, lcp_lm, lcp_mr = pysais.lcp(sequence, sa)
-
-    # create inverse suffix array
-    isa = [0] * (n + 1)
-    for i in range(0, n + 1):
-        isa[sa[i]] = i
-
-    # preprocess LCP array for RMQ
-    rmq = LogarithmicRangeMin(lcp)
-
-    # optional printing of suffix array
-    print_suffix_array = False
-
-    if (print_suffix_array):
-        for off in sa :
-            print('%3d : %s' % (off, sequence[off:]))
-
-    ########################
-
-    # define generic LCP function
-    def LCP(i, j):
-        if i == j:
-            return n - i
-
-        a = isa[i]
-        b = isa[j]
-
-        if a > b:
-            a, b = b, a
-
-        return rmq[a:b]
-
-    ########################
+    # store length of sequence (ignoring $ character)
+    n = len(sequence) - 1
 
     for i in range(1, n):
         # stop if end of string is reached
@@ -174,7 +58,6 @@ def get_next_LPM(prev_lpm, sequence):
         prev_lpm[i] = prev_lpm[i] + 1
 
     return prev_lpm
-
 
 
 # determine positions in an array that are larger than all previous values in the array
@@ -193,23 +76,70 @@ def get_peaks(array):
     return peaks
 
 
-
 # return length of longest closed border (if not closed returns -1)
-def get_longest_closed_border(sequence, k, pseudo=True):
+def get_longest_closed_border(sequence, k, pseudo=False, use_nlogn=False):
 
+	# store length of sequence
 	n = len(sequence)
 
-	if n == 1:
+	# trivial case
+	if (n == 1):
 		return 0
+
+	# append unique terminal character to sequence
+	sequence = sequence + "$"
+
+	########################
+
+	# create suffix array and LCP array
+	sa = pysais.sais(sequence)
+	lcp, lcp_lm, lcp_mr = pysais.lcp(sequence, sa)
+
+	# create inverse suffix array
+	isa = [0] * (n + 1)
+	for i in range(0, n + 1):
+		isa[sa[i]] = i
+
+	# preprocess LCP array for RMQ
+	if (use_nlogn):
+		rmq = LogarithmicRangeMin(lcp)
+	else:
+		rmq = RangeMin(lcp)
+
+	# optional printing of suffix array
+	if (False):
+		for off in sa :
+			print('%3d : %s' % (off, sequence[off:]))
+
+    ########################
+
+	# define generic LCP function
+	def LCP(i, j):
+		if i == j:
+			return LCP.n - i
+
+		a = LCP.isa[i]
+		b = LCP.isa[j]
+
+		if a > b:
+			a, b = b, a
+
+		return LCP.rmq[a:b]
+
+	LCP.n = n
+	LCP.isa = isa
+	LCP.rmq = rmq
+
+	########################
 
 	# calculate k-psuedo-closed border
 	if (pseudo):
 		# calculate LPM values
-		lpm = get_LPM(sequence, k)
+		lpm = get_LPM(sequence, k, LCP)
 		#print("LPM:", lpm)
 
 		# calcuate lp values by reversing string
-		lsm = get_LPM(sequence[::-1], k)[::-1]
+		lsm = get_LPM(sequence[::-1], k, LCP)[::-1]
 		#print("LSM:", lsm)
 
 		# get peak locations in l
@@ -242,16 +172,16 @@ def get_longest_closed_border(sequence, k, pseudo=True):
 		return closed_border
 	# calculate k-closed border
 	else:
-		reallpm = get_LPM(sequence, k)
-		reallsm = get_LPM(sequence[::-1], k)[::-1]
+		reallpm = get_LPM(sequence, k, LCP)
+		reallsm = get_LPM(sequence[::-1], k, LCP)[::-1]
 
 		closed_border = -1
 		lpm = [-1] * n
 		lsm = [-1] * n
 
 		for i in range(0, k + 1):
-			lpm = get_next_LPM(lpm, sequence)
-			lsm = get_next_LPM(lsm[::-1], sequence[::-1])[::-1]
+			lpm = get_next_LPM(lpm, sequence, LCP)
+			lsm = get_next_LPM(lsm[::-1], sequence[::-1], LCP)[::-1]
 
 			lpm_peaks = get_peaks(lpm)
 			lsm_peaks = get_peaks(lsm)
@@ -273,18 +203,25 @@ def get_longest_closed_border(sequence, k, pseudo=True):
 
 		return -1
 
+
 # main execution
 def main():
+	# create argument parser
 	parser = argparse.ArgumentParser(description='Identify if given text is k-closed')
+
+	# add arguments f, k, p, t, r
 	parser.add_argument('-f', metavar="", type=str, required=True, nargs=1,
 	                    help='a text filename')
 	parser.add_argument('-k', metavar="", type=int, required=True, nargs=1,
 	                    help='a k-error value')
 	parser.add_argument('-p', required=False, action='store_true',
 	                    help='pseudo-closed flag')
-	parser.add_argument('-t', type=int, required=False, nargs=1,
-	                    help='Number of repetitions to calculate timing')
+	parser.add_argument('-t', metavar="", type=int, required=False, nargs=1,
+	                    help='number of repetitions to calculate timing')
+	parser.add_argument('-r', required=False, action='store_true',
+	                    help='if set uses O(nlogn) RMQs, otherwise uses O(n) RMQs')
 
+	# store user given arguments
 	args = parser.parse_args()
 	filename = vars(args)['f'][0]
 	k = vars(args)['k'][0]
@@ -295,26 +232,34 @@ def main():
 	else:
 		timing_reps = vars(args)['t'][0]
 
+	use_nlogn = vars(args)['r']
+
+	# open given text
 	with open(filename, 'r') as file:
 	    seq = file.readlines()
 
 	seq = "".join(seq).replace('\n','')
 
+	# optionally time execution of algorithm
 	start = 0
 	end = 0
 
 	if (timing_reps != None):
 		start = timer()
 		for i in range(0, timing_reps):
-			get_longest_closed_border(seq, k, use_pseudo)
+			get_longest_closed_border(seq, k, use_pseudo, use_nlogn)
 		end = timer()
 
-	border = get_longest_closed_border(seq, k, use_pseudo)
+	# final (or only) run of algorithm to determine solution
+	border = get_longest_closed_border(seq, k, use_pseudo, use_nlogn)
 
-	print("Border: ", border)
+	# print solution
+	print("Border: " + str(border))
 
+	# optionally print timing result
 	if (timing_reps != None):
-		print("Time(s): ", (end - start) / timing_reps)
+		print("Time(s): " + str((end - start) / timing_reps))
+
 
 # call main
 if __name__ == "__main__":
