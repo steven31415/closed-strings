@@ -258,7 +258,7 @@ def main():
 
 	# optionally print timing result
 	if (timing_reps != None):
-		print("Time(s): " + str((end - start) / timing_reps))
+		print("Time(s): " + str(round((end - start) / timing_reps, 4)))
 
 
 # call main
