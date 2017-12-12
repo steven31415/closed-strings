@@ -4,7 +4,7 @@ from k_closed_identify import get_longest_closed_border
 line_count = 0
 correct_result_count = 0
 
-for line in open('correct.txt'):
+for line in open('correctness_tests.txt'):
 	
 	values = str.split(line)
 

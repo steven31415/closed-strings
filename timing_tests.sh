@@ -1,14 +1,21 @@
 #!/bin/bash
 
 OUTPUT_FILE=test_run_$(date "+%F-%T").txt
-echo -e "n\t\t\tk\t\t\tp r time" >> $OUTPUT_FILE
+echo -e "n k p r time" >> $OUTPUT_FILE
 
-N=2
+N=8192
 
 while [ $N -lt 1000000000 ]
 do
 	echo "Testing N=$N"
+
 	K=1
+
+	#temporary
+	if [ $N -eq 8192 ]
+	then
+		K=4096
+	fi
 
 	while [ $K -lt $N ]
 	do
@@ -39,8 +46,8 @@ do
 			TOTAL_TIME_TAKEN=0
 
 			# Perform tests on 10 different randomized strings, each looped 10 times
-			TEXT_REPEATS=10
-			SCRIPT_REPEATS=10
+			TEXT_REPEATS=2
+			SCRIPT_REPEATS=1
 
 			for i in `seq 1 $TEXT_REPEATS`;
 			do	
@@ -69,7 +76,7 @@ do
 
 			TOTAL_TIME_TAKEN=$(echo $TOTAL_TIME_TAKEN/$TEXT_REPEATS | bc -l)
 
-			echo -e "$N\t\t\t$K\t\t\t$P $R$TIME_TAKEN" >> $OUTPUT_FILE
+			echo -e "$N $K $P $R$TIME_TAKEN" >> $OUTPUT_FILE
 		done
 
 		K=$((2*$K))
