@@ -3,19 +3,13 @@
 OUTPUT_FILE=test_run_$(date "+%F-%T").txt
 echo -e "n k p r time" >> $OUTPUT_FILE
 
-N=8192
+N=2
 
 while [ $N -lt 1000000000 ]
 do
 	echo "Testing N=$N"
 
 	K=1
-
-	#temporary
-	if [ $N -eq 8192 ]
-	then
-		K=4096
-	fi
 
 	while [ $K -lt $N ]
 	do
