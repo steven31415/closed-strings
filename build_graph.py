@@ -78,32 +78,54 @@ def main():
         if x not in k_unique_values:
             k_unique_values.append(x)
 
+
+
+    x_title = 'k'
+    y_title = 'n'
+    x_variable = k
+    x_variable_unique_values = k_unique_values
+    line_variable = n
+    line_variable_unique_values = n_unique_values
+    x_variable_values = k_values
+    line_variable_values = n_values
+
     if plot_k == False:
-        line_chart = pygal.XY(x_label_rotation=-90, show_only_major_dots=True, x_title='n', y_title='seconds')
-        line_chart.title = 'Algorithm run time'
-        
-        x_labels = []
+        x_title = 'n'
+        y_title = 'k'
+        x_variable = n
+        x_variable_unique_values = n_unique_values
+        line_variable = k
+        line_variable_unique_values = k_unique_values
+        x_variable_values = n_values
+        line_variable_values = k_values
 
-        for n in n_unique_values:
-            if n >= minimum_X and n <= maximum_X:
-                x_labels.append({
-                'label': str(n),
-                'value': n
-                })
 
-        line_chart.x_labels = x_labels
 
-        for k in k_unique_values:
-            if k >= minimum_L and k <= maximum_L:
-                points = []
-                for i in range(0, len(time_values)):
-                    if p_values[i] == pseudo and r_values[i] == nlogn_rmq and k_values[i] == k:
-                       if n_values[i] >= minimum_X and n_values[i] <= maximum_X:
-                            points.append((n_values[i], time_values[i]))
+    line_chart = pygal.XY(x_label_rotation=-90, show_only_major_dots=True, x_title=x_title, y_title='seconds')
+    line_chart.title = 'Algorithm run time'
+    
+    x_labels = []
 
-                line_chart.add('K=' + str(k), points)
+    for x_variable in x_variable_unique_values:
+        if x_variable >= minimum_X and x_variable <= maximum_X:
+            x_labels.append({
+            'label': str(x_variable),
+            'value': x_variable
+            })
 
-        line_chart.render_to_file('./chart.svg')
+    line_chart.x_labels = x_labels
+
+    for line_variable in line_variable_unique_values:
+        if line_variable >= minimum_L and line_variable <= maximum_L:
+            points = []
+            for i in range(0, len(time_values)):
+                if p_values[i] == pseudo and r_values[i] == nlogn_rmq and line_variable_values[i] == line_variable:
+                   if x_variable_values[i] >= minimum_X and x_variable_values[i] <= maximum_X:
+                        points.append((x_variable_values[i], time_values[i]))
+
+            line_chart.add(y_title + '=' + str(line_variable), points)
+
+    line_chart.render_to_file('./chart.svg')
         
 # call main
 if __name__ == "__main__":
