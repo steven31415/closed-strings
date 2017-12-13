@@ -3,6 +3,7 @@ import numpy as np
 import argparse
 import pygal
 import math
+import cairosvg
 
 # pygal is installed via: pip install pygal
 # If rendered graphs are black, install: lxml, tinycss and cssselect
@@ -102,7 +103,6 @@ def main():
 
 
     line_chart = pygal.XY(x_label_rotation=-90, show_only_major_dots=True, x_title=x_title, y_title='seconds')
-    line_chart.title = 'Algorithm run time'
     
     x_labels = []
 
@@ -125,7 +125,7 @@ def main():
 
             line_chart.add(y_title + '=' + str(line_variable), points)
 
-    line_chart.render_to_file('./chart.svg')
+    line_chart.render_to_png('./chart.png')
         
 # call main
 if __name__ == "__main__":

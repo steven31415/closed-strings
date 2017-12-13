@@ -1,0 +1,4 @@
+rand_data_n:	python build_graph.py -mL 64 -ML 512 -mX 1024 -MX 1000000 -f rand_data_timing_results.txt -r
+rand_data_n_r:	python build_graph.py -mL 64 -ML 512 -mX 1024 -MX 1000000 -f rand_data_timing_results.txt
+rand_data_k:	python build_graph.py -mL 16384 -ML 16384 -mX 512 -MX 8192 -f rand_data_timing_results.txt -k
+rand_data_k_r:	python build_graph.py -mL 16384 -ML 16384 -mX 512 -MX 8192 -f rand_data_timing_results.txt -k -r
