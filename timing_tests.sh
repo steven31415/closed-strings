@@ -11,7 +11,7 @@ else
 	elif [ "$1" = "real" ]; then
 		echo "Using REAL data:"
 		RANDOM_DATA=false
-		DATA_OUTPUT_FILE="randDNA.out"
+		DATA_OUTPUT_FILE="realDNA.out"
 	else
 		echo "Must provide a single string argument specifying data style, either 'random' or 'real'"
 		exit
@@ -66,7 +66,7 @@ do
 				if RANDOM_DATA=true; then
 					python randDNA.py $N
 				else
-					python randDNA.py $N
+					python realDNA.py $N
 				fi
 
 				if [ $P -eq 1 ]
