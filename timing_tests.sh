@@ -63,7 +63,7 @@ do
 
 			for i in `seq 1 $TEXT_REPEATS`;
 			do	
-				if RANDOM_DATA=true; then
+				if [ "$RANDOM_DATA" = true ]; then
 					python randDNA.py $N
 				else
 					python realDNA.py $N
