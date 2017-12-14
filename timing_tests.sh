@@ -1,5 +1,23 @@
 #!/bin/bash
 
+if [ $# -ne 1 ]; then
+	echo "Must provide a single string argument specifying data style, either 'random' or 'real'"
+	exit
+else
+	if [ "$1" = "random" ]; then
+		echo "Using RANDOM data:"
+		RANDOM_DATA=true
+		DATA_OUTPUT_FILE="randDNA.out"
+	elif [ "$1" = "real" ]; then
+		echo "Using REAL data:"
+		RANDOM_DATA=false
+		DATA_OUTPUT_FILE="randDNA.out"
+	else
+		echo "Must provide a single string argument specifying data style, either 'random' or 'real'"
+		exit
+	fi
+fi
+
 OUTPUT_FILE=test_run_$(date "+%F-%T").txt
 echo -e "n k p r time" >> $OUTPUT_FILE
 
@@ -39,28 +57,32 @@ do
 
 			TOTAL_TIME_TAKEN=0
 
-			# Perform tests on 10 different randomized strings, each looped 10 times
+			# Perform tests on TEXT_REPEATS randomized strings, each looped SCRIPT_REPEATS times
 			TEXT_REPEATS=2
 			SCRIPT_REPEATS=1
 
 			for i in `seq 1 $TEXT_REPEATS`;
 			do	
-				python randDNA.py $N
+				if RANDOM_DATA=true; then
+					python randDNA.py $N
+				else
+					python randDNA.py $N
+				fi
 
 				if [ $P -eq 1 ]
 				then
 					if [ $R -eq 1 ]
 					then
-						RESULT=$(python k_closed_identify.py -f randDNA.out -k $K -t $SCRIPT_REPEATS -p -r)
+						RESULT=$(python k_closed_identify.py -f $DATA_OUTPUT_FILE -k $K -t $SCRIPT_REPEATS -p -r)
 					else
-						RESULT=$(python k_closed_identify.py -f randDNA.out -k $K -t $SCRIPT_REPEATS -p)
+						RESULT=$(python k_closed_identify.py -f $DATA_OUTPUT_FILE -k $K -t $SCRIPT_REPEATS -p)
 					fi
 				else
 					if [ $R -eq 1 ]
 					then
-						RESULT=$(python k_closed_identify.py -f randDNA.out -k $K -t $SCRIPT_REPEATS -r)
+						RESULT=$(python k_closed_identify.py -f $DATA_OUTPUT_FILE -k $K -t $SCRIPT_REPEATS -r)
 					else
-						RESULT=$(python k_closed_identify.py -f randDNA.out -k $K -t $SCRIPT_REPEATS)
+						RESULT=$(python k_closed_identify.py -f $DATA_OUTPUT_FILE -k $K -t $SCRIPT_REPEATS)
 					fi
 				fi
 
